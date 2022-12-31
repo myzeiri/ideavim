@@ -963,4 +963,23 @@ class MatchitHtmlTest : VimTestCase() {
       VimStateMachine.Mode.COMMAND, VimStateMachine.SubMode.NONE, HtmlFileType.INSTANCE
     )
   }
+
+  fun `test temp`() {
+    doTest(
+      "%",
+      "$c  <!-- A comment -->",
+      "  <!-- A comment --$c>",
+      VimStateMachine.Mode.COMMAND, VimStateMachine.SubMode.NONE, HtmlFileType.INSTANCE
+    )
+  }
+
+  fun `test temp2`() {
+    doTest(
+      "g%",
+      "$c  <!-- A comment -->",
+      "  <!-- A comment --$c>",
+      VimStateMachine.Mode.COMMAND, VimStateMachine.SubMode.NONE, HtmlFileType.INSTANCE
+    )
+  }
+
 }

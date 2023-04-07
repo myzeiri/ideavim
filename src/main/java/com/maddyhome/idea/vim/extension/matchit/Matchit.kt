@@ -234,6 +234,13 @@ private object FileTypePatterns {
     }
   }
 
+  // PSI elements to ignore when searching.
+  // In Ruby, we want to ignore "do" keywords after conditions, any inline "if" or "unless" expressions,
+  // regex strings, and identifiers like "Foo.class",
+  val skippedRubyElements = setOf("do_cond", "if modifier", "unless modifier", "regexp content", "identifier")
+  // Ignore JavaScript angle brackets used for comparisons, arrow functions, and regex strings.
+  val skippedJavaScriptElements = setOf("LT", "LE", "GT", "GE", "EQGT", "REGEXP_LITERAL")
+
   private val htmlLikeFileTypes = setOf(
     "HTML", "XML", "XHTML", "JSP", "JavaScript", "JSX Harmony",
     "TypeScript", "TypeScript JSX", "Vue.js", "Handlebars/Mustache",
@@ -431,6 +438,16 @@ private fun findMatchingPair(
   }
 
   if (closestSearchPair != null) {
+    val initialPatternStart = currentLineStart + closestMatchStart
+    val initialPatternEnd = currentLineStart + closestMatchEnd
+
+    val initialPsiElement = PsiHelper.getFile(editor)!!.findElementAt(initialPatternStart)
+    if (getElementType(initialPsiElement) in FileTypePatterns.skippedJavaScriptElements) {
+      // Special case: Ignore the skipped JS elements completely. In Ruby, however, we still want to jump if the cursor
+      // is on e.g. a "do" after an "if", but that "do" should be skipped when the cursor is on "if".
+      return -1
+    }
+
     val targetOpeningPattern: String
     val targetClosingPattern: String
 
@@ -443,14 +460,10 @@ private fun findMatchingPair(
       targetClosingPattern = closestSearchPair.second
     }
 
-    val initialPatternStart = currentLineStart + closestMatchStart
-    val initialPatternEnd = currentLineStart + closestMatchEnd
-
-    val initialPsiElement = PsiHelper.getFile(editor)!!.findElementAt(initialPatternStart)
     val skipComments = !isComment(initialPsiElement)
     val skipQuotes = !isQuoted(initialPsiElement)
-
     val searchParams = MatchitSearchParams(initialPatternStart, initialPatternEnd, targetOpeningPattern, targetClosingPattern, skipComments, skipQuotes)
+
     val matchingPairOffset = if (direction == Direction.FORWARDS) {
       findClosingPair(editor, isInOpPending, searchParams)
     } else {
@@ -567,13 +580,17 @@ private fun containsDefaultPairs(chars: CharSequence): Boolean {
   return false
 }
 
+private fun getElementType(psiElement: PsiElement?): String? {
+  return psiElement?.node?.elementType?.debugName
+}
+
 private fun matchShouldBeSkipped(editor: Editor, offset: Int, skipComments: Boolean, skipStrings: Boolean): Boolean {
   val psiFile = PsiHelper.getFile(editor)
   val psiElement = psiFile!!.findElementAt(offset)
+  val elementType = getElementType(psiElement)
 
-  // TODO: as we add support for more languages, we should store the ignored keywords for each language in its own
-  //  data structure. The original plugin stores that information in strings called match_skip.
-  if (isSkippedRubyKeyword(psiElement)) {
+  if (elementType in FileTypePatterns.skippedRubyElements ||
+    elementType in FileTypePatterns.skippedJavaScriptElements) {
     return true
   }
 
@@ -583,22 +600,12 @@ private fun matchShouldBeSkipped(editor: Editor, offset: Int, skipComments: Bool
     (skipStrings && insideQuotes) || (!skipStrings && !insideQuotes)
 }
 
-private fun isSkippedRubyKeyword(psiElement: PsiElement?): Boolean {
-  // In Ruby code, we want to ignore anything inside of a regular expression like "/ class /" and identifiers like
-  // "Foo.class". Matchit also ignores any "do" keywords that follow a loop or an if condition, as well as any inline
-  // "if" and "unless" expressions (a.k.a conditional modifiers).
-  val elementType = psiElement?.node?.elementType?.debugName
-
-  return elementType == "do_cond" || elementType == "if modifier" || elementType == "unless modifier" ||
-    elementType == "regexp content" || elementType == "identifier"
-}
-
 private fun isComment(psiElement: PsiElement?): Boolean {
   return PsiTreeUtil.getParentOfType(psiElement, PsiComment::class.java, false) != null
 }
 
 private fun isQuoted(psiElement: PsiElement?): Boolean {
-  val elementType = psiElement?.elementType?.debugName
+  val elementType = getElementType(psiElement)
   return elementType == "STRING_LITERAL" || elementType == "XML_ATTRIBUTE_VALUE_TOKEN" ||
     elementType == "string content" // Ruby specific.
 }

@@ -628,6 +628,18 @@ class MatchitHtmlTest : VimTestCase() {
       HtmlFileType.INSTANCE,
     )
   }
+  
+  @Test
+  fun `test jump from whitespace before comment angle bracket to closing`() {
+    doTest(
+      "%",
+      "$c  <!-- A comment -->",
+      "  <!-- A comment --$c>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      HtmlFileType.INSTANCE
+    )
+  }
 
   /*
    *  g% motion tests. For HTML, g% should behave the same as %.
@@ -1142,6 +1154,18 @@ class MatchitHtmlTest : VimTestCase() {
       VimStateMachine.Mode.COMMAND,
       VimStateMachine.SubMode.NONE,
       HtmlFileType.INSTANCE,
+    )
+  }
+
+  @Test
+  fun `test reverse jump from whitespace before comment angle bracket to closing`() {
+    doTest(
+      "g%",
+      "$c  <!-- A comment -->",
+      "  <!-- A comment --$c>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      HtmlFileType.INSTANCE
     )
   }
 

@@ -577,6 +577,8 @@ private fun matchShouldBeSkipped(editor: Editor, offset: Int, skipComments: Bool
   val psiElement = psiFile!!.findElementAt(offset)
   val elementType = psiElement?.node?.elementType?.debugName
 
+  VimPlugin.getNotifications().myDebug("elementType $elementType")
+
   if (elementType in FileTypePatterns.skippedRubyElements ||
       elementType in FileTypePatterns.skippedJavaScriptElements) {
     return true

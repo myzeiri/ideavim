@@ -201,7 +201,7 @@ public class VimPlugin implements PersistentStateComponent<Element>, Disposable 
     return VimInjectorKt.getInjector().getOptionService();
   }
 
-  private static @NotNull NotificationService getNotifications() {
+  public static @NotNull NotificationService getNotifications() {
     return getNotifications(null);
   }
 

@@ -235,7 +235,7 @@ private object FileTypePatterns {
   }
 
   val skippedRubyElements = setOf("do_cond", "if modifier", "unless modifier", "regexp content", "identifier")
-  val skippedJavaScriptElements = setOf("JS:LT", "JS:LE", "JS:GT", "JS:GE", "JS:EQGT")
+  val skippedJavaScriptElements = setOf("LT", "LE", "GT", "GE", "EQGT", "REGEXP_EXPRESSION")
 
   private val htmlLikeFileTypes = setOf(
     "HTML", "XML", "XHTML", "JSP", "JavaScript", "JSX Harmony",

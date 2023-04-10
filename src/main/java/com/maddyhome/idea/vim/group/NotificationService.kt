@@ -107,6 +107,29 @@ internal class NotificationService(private val project: Project?) {
     notification.notify(project)
   }
 
+  fun myDebug(message: String) {
+    val notification = Notification(
+      IDEAVIM_NOTIFICATION_ID, IDEAVIM_NOTIFICATION_TITLE,
+      message,
+      NotificationType.INFORMATION
+    )
+
+    notification.addAction(OpenIdeaVimRcAction(notification))
+
+    notification.addAction(
+      AppendToIdeaVimRcAction(
+        notification,
+        "set ideajoin",
+        "idejoin"
+      ) {
+        injector.optionGroup.setToggleOption(IjOptions.ideajoin, OptionScope.GLOBAL)
+      },
+    )
+
+    notification.addAction(HelpLink(ideajoinExamplesUrl))
+    notification.notify(project)
+  }
+
   fun enableRepeatingMode() = Messages.showYesNoDialog(
     "Do you want to enable repeating keys in macOS on press and hold?\n\n" +
       "(You can do it manually by running 'defaults write -g " +
@@ -206,7 +229,8 @@ internal class NotificationService(private val project: Project?) {
       }
     }
 
-    class CopyActionId(val id: String?, val project: Project?) : DumbAwareAction(MessageHelper.message("action.copy.action.id.text")) {
+    class CopyActionId(val id: String?, val project: Project?) :
+      DumbAwareAction(MessageHelper.message("action.copy.action.id.text")) {
       override fun actionPerformed(e: AnActionEvent) {
         CopyPasteManager.getInstance().setContents(StringSelection(id ?: ""))
         if (id != null) {

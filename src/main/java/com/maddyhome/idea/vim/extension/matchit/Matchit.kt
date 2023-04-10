@@ -450,10 +450,13 @@ private fun findMatchingPair(
     val initialPatternEnd = currentLineStart + closestMatchEnd
 
     val initialPsiElement = PsiHelper.getFile(editor)!!.findElementAt(initialPatternStart)
+    if (getElementType(initialPsiElement) in FileTypePatterns.skippedJavaScriptElements) {
+      return -1
+    }
+
     val skipComments = !isComment(initialPsiElement)
     val skipQuotes = !isQuoted(initialPsiElement)
 
-    // TODO: we should probably check if the PSI element at the cursor is skippedJavaScript element, and return -1 if so
 
     val searchParams = MatchitSearchParams(initialPatternStart, initialPatternEnd, targetOpeningPattern, targetClosingPattern, skipComments, skipQuotes)
     val matchingPairOffset = if (direction == Direction.FORWARDS) {
@@ -572,10 +575,14 @@ private fun containsDefaultPairs(chars: CharSequence): Boolean {
   return false
 }
 
+private fun getElementType(psiElement: PsiElement?): String? {
+  return psiElement?.node?.elementType?.debugName
+}
+
 private fun matchShouldBeSkipped(editor: Editor, offset: Int, skipComments: Boolean, skipStrings: Boolean): Boolean {
   val psiFile = PsiHelper.getFile(editor)
   val psiElement = psiFile!!.findElementAt(offset)
-  val elementType = psiElement?.node?.elementType?.debugName
+  val elementType = getElementType(psiElement)
 
   VimPlugin.getNotifications().myDebug("elementType $elementType")
 
@@ -595,7 +602,7 @@ private fun isComment(psiElement: PsiElement?): Boolean {
 }
 
 private fun isQuoted(psiElement: PsiElement?): Boolean {
-  val elementType = psiElement?.elementType?.debugName
+  val elementType = getElementType(psiElement)
   return elementType == "STRING_LITERAL" || elementType == "XML_ATTRIBUTE_VALUE_TOKEN" ||
     elementType == "string content" // Ruby specific.
 }

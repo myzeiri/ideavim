@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.elementType
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.api.ExecutionContext
 import com.maddyhome.idea.vim.api.ImmutableVimCaret
@@ -576,8 +577,8 @@ private fun getElementType(psiElement: PsiElement?): String? {
   return psiElement?.node?.elementType?.debugName
 }
 
-private fun getElementContextType(psiElement: PsiElement?): String? {
-  return psiElement?.parent?.node?.elementType?.debugName
+private fun getParentElementType(psiElement: PsiElement?): String? {
+  return psiElement?.parent?.elementType?.debugName
 }
 
 private fun matchShouldBeSkipped(editor: Editor, offset: Int, skipComments: Boolean, skipStrings: Boolean): Boolean {
@@ -610,7 +611,7 @@ private fun isSkippedJavaScriptElement(psiElement: PsiElement?): Boolean {
 
 private fun isSkippedTypeScriptElement(psiElement: PsiElement?): Boolean {
   // Ignore angle brackets used for type parameters.
-  return getElementContextType(psiElement) == "TYPE_PARAMETER_LIST"
+  return getParentElementType(psiElement) == "TYPE_PARAMETER_LIST"
 }
 
 private fun isComment(psiElement: PsiElement?): Boolean {

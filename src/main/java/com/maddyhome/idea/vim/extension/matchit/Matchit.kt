@@ -238,8 +238,8 @@ private object FileTypePatterns {
   // In Ruby, we want to ignore "do" keywords after conditions, any inline "if" or "unless" expressions,
   // regex strings, and identifiers like "Foo.class",
   val skippedRubyElements = setOf("do_cond", "if modifier", "unless modifier", "regexp content", "identifier")
-  // Ignore JavaScript angle brackets used for comparisons, arrow functions, and regex strings.
-  val skippedJavaScriptElements = setOf("LT", "LE", "GT", "GE", "EQGT", "REGEXP_LITERAL")
+  // Ignore angle brackets used for comparisons, arrow functions, type parms, and regex strings.
+  val skippedJavaScriptElements = setOf("LT", "LE", "GT", "GE", "EQGT", "SINGLE_TYPE", "REGEXP_LITERAL")
 
   private val htmlLikeFileTypes = setOf(
     "HTML", "XML", "XHTML", "JSP", "JavaScript", "JSX Harmony",

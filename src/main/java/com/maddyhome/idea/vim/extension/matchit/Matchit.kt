@@ -577,10 +577,6 @@ private fun getElementType(psiElement: PsiElement?): String? {
   return psiElement?.node?.elementType?.debugName
 }
 
-private fun getParentElementType(psiElement: PsiElement?): String? {
-  return psiElement?.parent?.elementType?.debugName
-}
-
 private fun matchShouldBeSkipped(editor: Editor, offset: Int, skipComments: Boolean, skipStrings: Boolean): Boolean {
   val psiFile = PsiHelper.getFile(editor)
   val element = psiFile!!.findElementAt(offset)
@@ -606,12 +602,19 @@ private fun isSkippedRubyElement(psiElement: PsiElement?): Boolean {
 private fun isSkippedJavaScriptElement(psiElement: PsiElement?): Boolean {
   // Ignore angle brackets used for comparisons, arrow functions, and regex strings.
   val type = getElementType(psiElement)
+  VimPlugin.getNotifications().myDebug("elementType $type")
   return type == "LT" || type == "LE" || type == "GT" || type == "GE" || type == "EQGT" || type == "REGEXP_LITERAL"
 }
 
 private fun isSkippedTypeScriptElement(psiElement: PsiElement?): Boolean {
   // Ignore angle brackets used for type parameters.
-  return getParentElementType(psiElement) == "TYPE_PARAMETER_LIST"
+  val parentType = getElementType(psiElement?.parent)
+  val grandParentType = getElementType(psiElement?.parent?.parent)
+
+  VimPlugin.getNotifications().myDebug("parentType $parentType")
+  VimPlugin.getNotifications().myDebug("grandParentType $grandParentType")
+
+  return parentType == "TYPE_PARAMETER" || parentType == "TYPE_ARGUMENT_LIST" || grandParentType == "SINGLE_TYPE"
 }
 
 private fun isComment(psiElement: PsiElement?): Boolean {

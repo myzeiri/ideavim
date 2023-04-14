@@ -14,7 +14,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.elementType
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.api.ExecutionContext
 import com.maddyhome.idea.vim.api.ImmutableVimCaret
@@ -234,13 +233,6 @@ private object FileTypePatterns {
     }
   }
 
-  // PSI elements to ignore when searching.
-  // In Ruby, we want to ignore "do" keywords after conditions, any inline "if" or "unless" expressions,
-  // regex strings, and identifiers like "Foo.class",
-  val skippedRubyElements = setOf("do_cond", "if modifier", "unless modifier", "regexp content", "identifier")
-  // Ignore angle brackets used for comparisons, arrow functions, type parms, and regex strings.
-  val skippedJavaScriptElements = setOf("LT", "LE", "GT", "GE", "EQGT", "SINGLE_TYPE", "REGEXP_LITERAL")
-
   private val htmlLikeFileTypes = setOf(
     "HTML", "XML", "XHTML", "JSP", "JavaScript", "JSX Harmony",
     "TypeScript", "TypeScript JSX", "Vue.js", "Handlebars/Mustache",
@@ -442,9 +434,9 @@ private fun findMatchingPair(
     val initialPatternEnd = currentLineStart + closestMatchEnd
 
     val initialPsiElement = PsiHelper.getFile(editor)!!.findElementAt(initialPatternStart)
-    if (getElementType(initialPsiElement) in FileTypePatterns.skippedJavaScriptElements) {
-      // Special case: Ignore the skipped JS elements completely. In Ruby, however, we still want to jump if the cursor
-      // is on e.g. a "do" after an "if", but that "do" should be skipped when the cursor is on "if".
+    if (isSkippedJavaScriptElement(initialPsiElement) || isSkippedTypeScriptElement(initialPsiElement)) {
+      // Special case: Ignore the skipped JS/TS elements completely. In Ruby, however, we still want to jump if the
+      // cursor is on e.g. a "do" after an "if", but that "do" should be skipped when the cursor is on "if".
       return -1
     }
 
@@ -584,20 +576,41 @@ private fun getElementType(psiElement: PsiElement?): String? {
   return psiElement?.node?.elementType?.debugName
 }
 
+private fun getElementContextType(psiElement: PsiElement?): String? {
+  return psiElement?.parent?.node?.elementType?.debugName
+}
+
 private fun matchShouldBeSkipped(editor: Editor, offset: Int, skipComments: Boolean, skipStrings: Boolean): Boolean {
   val psiFile = PsiHelper.getFile(editor)
-  val psiElement = psiFile!!.findElementAt(offset)
-  val elementType = getElementType(psiElement)
+  val element = psiFile!!.findElementAt(offset)
 
-  if (elementType in FileTypePatterns.skippedRubyElements ||
-    elementType in FileTypePatterns.skippedJavaScriptElements) {
+  if (isSkippedRubyElement(element) || isSkippedJavaScriptElement(element) || isSkippedTypeScriptElement(element)) {
     return true
   }
 
-  val insideComment = isComment(psiElement)
-  val insideQuotes = isQuoted(psiElement)
+  val insideComment = isComment(element)
+  val insideQuotes = isQuoted(element)
   return (skipComments && insideComment) || (!skipComments && !insideComment) ||
     (skipStrings && insideQuotes) || (!skipStrings && !insideQuotes)
+}
+
+private fun isSkippedRubyElement(psiElement: PsiElement?): Boolean {
+  // We want to ignore "do" keywords after conditions, any inline "if" or "unless" expressions, regex strings,
+  // and identifiers like "Foo.class",
+  val type = getElementType(psiElement)
+  return type == "do_cond" || type == "if modifier" || type == "unless modifier" ||
+    type == "regexp content" || type == "identifier"
+}
+
+private fun isSkippedJavaScriptElement(psiElement: PsiElement?): Boolean {
+  // Ignore angle brackets used for comparisons, arrow functions, and regex strings.
+  val type = getElementType(psiElement)
+  return type == "LT" || type == "LE" || type == "GT" || type == "GE" || type == "EQGT" || type == "REGEXP_LITERAL"
+}
+
+private fun isSkippedTypeScriptElement(psiElement: PsiElement?): Boolean {
+  // Ignore angle brackets used for type parameters.
+  return getElementContextType(psiElement) == "TYPE_PARAMETER_LIST"
 }
 
 private fun isComment(psiElement: PsiElement?): Boolean {
@@ -605,7 +618,7 @@ private fun isComment(psiElement: PsiElement?): Boolean {
 }
 
 private fun isQuoted(psiElement: PsiElement?): Boolean {
-  val elementType = getElementType(psiElement)
-  return elementType == "STRING_LITERAL" || elementType == "XML_ATTRIBUTE_VALUE_TOKEN" ||
-    elementType == "string content" // Ruby specific.
+  val type = getElementType(psiElement)
+  return type == "STRING_LITERAL" || type == "XML_ATTRIBUTE_VALUE_TOKEN" ||
+    type == "string content" // Ruby specific.
 }

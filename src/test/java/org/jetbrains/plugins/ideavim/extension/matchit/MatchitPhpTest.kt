@@ -23,70 +23,162 @@ class MatchitPhpTest : VimTestCase() {
   }
 
   @Test
-  fun `test basic jump to closing tag`() {
+  fun `test jump from opening HTML angle bracket to closing bracket`() {
     doTest(
       "%",
-      """
-        <${c}h1>Heading</h1>
-      """.trimIndent(),
-      """
-        <h1>Heading<$c/h1>
-      """.trimIndent(),
+      "$c<h1>Heading</h1>",
+      "<h1$c>Heading</h1>",
       VimStateMachine.Mode.COMMAND,
       VimStateMachine.SubMode.NONE,
-      fileName = "file.php"
+      fileName = "file.php",
     )
   }
 
   @Test
-  fun `test basic jump to opening tag`() {
+  fun `test jump from opening angle bracket to closing question mark`() {
     doTest(
       "%",
-      """
-        <h1>Heading</${c}h1>
-      """.trimIndent(),
-      """
-        <${c}h1>Heading</h1>
-      """.trimIndent(),
+      "$c<?php \$n=1 ?>",
+      "<?php \$n=1 $c?>",
       VimStateMachine.Mode.COMMAND,
       VimStateMachine.SubMode.NONE,
-      fileName = "file.php"
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from whitespace before opening angle bracket to closing question mark`() {
+    doTest(
+      "%",
+      "$c  <?php \$n=1 ?>",
+      "  <?php \$n=1 $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from closing angle bracket to opening angle bracket`() {
+    doTest(
+      "%",
+      "<?php \$n=1 ?$c>",
+      "$c<?php \$n=1 ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from opening question mark to closing question mark`() {
+    doTest(
+      "%",
+      "<$c?php \$n=1 ?>",
+      "<?php \$n=1 $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from closing question mark to opening angle bracket`() {
+    doTest(
+      "%",
+      "<?php \$n=1 $c?>",
+      "$c<?php \$n=1 ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from php to closing question mark`() {
+    doTest(
+      "%",
+      "<?ph${c}p \$n=1 ?>",
+      "<?php \$n=1 $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
     )
   }
 
   /*
-   *  g% motion tests. For HTML, g% should behave the same as %.
+   *  g% motion tests.
    */
 
   @Test
-  fun `test reverse jump to closing tag`() {
+  fun `test reverse jump from opening angle bracket to closing question mark`() {
     doTest(
       "g%",
-      """
-        <${c}h1>Heading</h1>
-      """.trimIndent(),
-      """
-        <h1>Heading<$c/h1>
-      """.trimIndent(),
+      "$c<?php \$n=1 ?>",
+      "<?php \$n=1 $c?>",
       VimStateMachine.Mode.COMMAND,
       VimStateMachine.SubMode.NONE,
-      fileName = "file.php"
+      fileName = "file.php",
     )
   }
 
   @Test
-  fun `test reverse jump to opening tag`() {
+  fun `test reverse jump from whitespace before opening angle bracket to closing question mark`() {
     doTest(
       "g%",
-      """
-        <h1>Heading</${c}h1>
-      """.trimIndent(),
-      """
-        <${c}h1>Heading</h1>
-      """.trimIndent(),
+      "$c  <?php \$n=1 ?>",
+      "  <?php \$n=1 $c?>",
       VimStateMachine.Mode.COMMAND,
       VimStateMachine.SubMode.NONE,
-      fileName = "file.php"
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from closing angle bracket to opening angle bracket`() {
+    doTest(
+      "g%",
+      "<?php \$n=1 ?$c>",
+      "$c<?php \$n=1 ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from opening question mark to closing question mark`() {
+    doTest(
+      "g%",
+      "<$c?php \$n=1 ?>",
+      "<?php \$n=1 $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from closing question mark to opening angle bracket`() {
+    doTest(
+      "g%",
+      "<?php \$n=1 $c?>",
+      "$c<?php \$n=1 ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from php to closing question mark`() {
+    doTest(
+      "g%",
+      "<?ph${c}p \$n=1 ?>",
+      "<?php \$n=1 $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
     )
   }
 

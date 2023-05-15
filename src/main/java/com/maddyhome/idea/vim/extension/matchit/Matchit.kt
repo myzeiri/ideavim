@@ -221,6 +221,8 @@ private object FileTypePatterns {
       this.rubyPatterns
     } else if (fileTypeName == "RHTML" || fileExtension == "erb") {
       this.rubyAndHtmlPatterns
+    } else if (fileTypeName == "PHP" || fileExtension == "php") {
+      this.phpAndHtmlPatterns
     } else if (fileTypeName == "C++" || fileTypeName == "C#" || fileTypeName == "ObjectiveC" || fileExtension == "c") {
       // "C++" also covers plain C.
       this.cPatterns
@@ -242,6 +244,7 @@ private object FileTypePatterns {
   private val htmlPatterns = createHtmlPatterns()
   private val rubyPatterns = createRubyPatterns()
   private val rubyAndHtmlPatterns = rubyPatterns + htmlPatterns
+  private val phpAndHtmlPatterns = createPhpPatterns() + htmlPatterns
   private val cPatterns = createCPatterns()
   private val gnuMakePatterns = createGnuMakePatterns()
   private val cMakePatterns = createCMakePatterns()
@@ -286,6 +289,16 @@ private object FileTypePatterns {
     return (
       LanguagePatterns(blockCommentStart, blockCommentEnd) +
         LanguagePatterns(openingKeywords, middleKeywords, endKeyword)
+      )
+  }
+
+  private fun createPhpPatterns(): LanguagePatterns {
+    // Original patterns: https://github.com/vim/vim/blob/master/runtime/ftplugin/php.vim
+
+    // use assertions since html angle brackets conflict...
+    return (
+      LanguagePatterns("(?<=<)\\?php", "\\?>") +
+      LanguagePatterns("<(?=\\?php)", "\\?>") // this will override the above in closings...
       )
   }
 

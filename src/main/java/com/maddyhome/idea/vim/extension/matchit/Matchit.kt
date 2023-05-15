@@ -607,6 +607,7 @@ private fun isSkippedJavaScriptElement(psiElement: PsiElement?): Boolean {
 }
 
 private fun isSkippedTypeScriptElement(psiElement: PsiElement?): Boolean {
+  val type = getElementType(psiElement)
   // Ignore angle brackets used for type parameters.
   val parentType = getElementType(psiElement?.parent)
   val grandParentType = getElementType(psiElement?.parent?.parent)
@@ -615,6 +616,9 @@ private fun isSkippedTypeScriptElement(psiElement: PsiElement?): Boolean {
   VimPlugin.getNotifications().myDebug("grandParentType $grandParentType")
 
   return parentType == "TYPE_PARAMETER" || parentType == "TYPE_ARGUMENT_LIST" || grandParentType == "SINGLE_TYPE"
+    || parentType == "Relational expression"
+    || type == "arrow"
+    || type == "heredoc start"
 }
 
 private fun isComment(psiElement: PsiElement?): Boolean {

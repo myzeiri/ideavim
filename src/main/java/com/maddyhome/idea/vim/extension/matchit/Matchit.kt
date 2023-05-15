@@ -235,7 +235,7 @@ private object FileTypePatterns {
   }
 
   private val htmlLikeFileTypes = setOf(
-    "HTML", "XML", "XHTML", "JSP", "JavaScript", "JSX Harmony",
+    "PHP", "php", "Php", "HTML", "XML", "XHTML", "JSP", "JavaScript", "JSX Harmony",
     "TypeScript", "TypeScript JSX", "Vue.js", "Handlebars/Mustache",
     "Asp", "Razor", "UXML", "Xaml",
   )

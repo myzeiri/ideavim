@@ -598,6 +598,8 @@ private fun isSkippedRubyElement(psiElement: PsiElement?): Boolean {
     type == "regexp content" || type == "identifier"
 }
 
+// TODO: rename this to isGlobalSkippedElement and throw the PHP stuff in
+//   Hopefully for >>> strings, the string check is sufficient to skip those
 private fun isSkippedJavaScriptElement(psiElement: PsiElement?): Boolean {
   val type = getElementType(psiElement)
   val parentType = getElementType(psiElement?.parent)
@@ -605,6 +607,8 @@ private fun isSkippedJavaScriptElement(psiElement: PsiElement?): Boolean {
   // Ignore regex strings, arrow functions, and angle brackets used for comparisons.
   return type == "REGEXP_LITERAL" || type == "EQGT" ||
     (parentType == "BINARY_EXPRESSION" && (type == "LT" || type == "LE" || type == "GT" || type == "GE"))
+  // TODO: checking the parent is a binary expression is sufficient for this check
+  //   Hopefully the PHP comparison operators use the same string.
 }
 
 private fun isComment(psiElement: PsiElement?): Boolean {

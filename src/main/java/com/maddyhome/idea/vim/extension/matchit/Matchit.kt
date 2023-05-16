@@ -244,7 +244,7 @@ private object FileTypePatterns {
   private val htmlPatterns = createHtmlPatterns()
   private val rubyPatterns = createRubyPatterns()
   private val rubyAndHtmlPatterns = rubyPatterns + htmlPatterns
-  private val phpAndHtmlPatterns = createPhpPatterns() + htmlPatterns
+  private val phpAndHtmlPatterns = createPhpPatterns()
   private val cPatterns = createCPatterns()
   private val gnuMakePatterns = createGnuMakePatterns()
   private val cMakePatterns = createCMakePatterns()
@@ -297,8 +297,9 @@ private object FileTypePatterns {
 
     // use assertions since html angle brackets conflict...
     return (
-      LanguagePatterns("(?<=<)\\?php", "\\?>") +
-      LanguagePatterns("<(?=\\?php)", "\\?>") // this will override the above in closings...
+      LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
+      LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
+      + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
   }
 

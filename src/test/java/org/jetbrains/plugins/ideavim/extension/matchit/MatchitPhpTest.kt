@@ -35,6 +35,18 @@ class MatchitPhpTest : VimTestCase() {
   }
 
   @Test
+  fun `test jump from opening HTML tag to closing tag`() {
+    doTest(
+      "%",
+      "<${c}h1>Heading</h1>",
+      "<h1>Heading<$c/h1>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
   fun `test jump from opening angle bracket to closing question mark`() {
     doTest(
       "%",
@@ -106,10 +118,6 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
-
-
-
-
   @Test
   fun `test jump from angle bracket on short opening to closing question mark`() {
     doTest(
@@ -171,10 +179,10 @@ class MatchitPhpTest : VimTestCase() {
   }
 
   @Test
-  fun `test jump from closing angle bracket to opening bracket on short form`() {
+  fun `test jump from closing angle bracket to opening bracket on short tag`() {
     doTest(
       "%",
-      "<?= func(123) $c?>",
+      "<?= func(123) ?$c>",
       "$c<?= func(123) ?>",
       VimStateMachine.Mode.COMMAND,
       VimStateMachine.SubMode.NONE,
@@ -182,9 +190,65 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+  @Test
+  fun `test jump from angle bracket on extra short opening to closing question mark`() {
+    doTest(
+      "%",
+      "$c<? func(123) ?>",
+      "<? func(123) $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
 
+  @Test
+  fun `test jump from question mark on extra short opening to closing question mark`() {
+    doTest(
+      "%",
+      "<$c? func(123) ?>",
+      "<? func(123) $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
 
+  @Test
+  fun `test jump from function to closing paren in extra short tags`() {
+    doTest(
+      "%",
+      "<? ${c}func(123) ?>",
+      "<? func(123$c) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
 
+  @Test
+  fun `test jump from whitespace before question mark to opening extra short tag`() {
+    doTest(
+      "%",
+      "<? func(123)$c ?>",
+      "$c<? func(123) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from closing angle bracket to opening bracket on extra short tag`() {
+    doTest(
+      "%",
+      "<? func(123) ?$c>",
+      "$c<? func(123) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
 
   /*
    *  g% motion tests.
@@ -261,5 +325,138 @@ class MatchitPhpTest : VimTestCase() {
       fileName = "file.php",
     )
   }
+
+  @Test
+  fun `test reverse jump from angle bracket on short opening to closing question mark`() {
+    doTest(
+      "g%",
+      "$c<?= func(123) ?>",
+      "<?= func(123) $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from question mark on short opening to closing question mark`() {
+    doTest(
+      "g%",
+      "<$c?= func(123) ?>",
+      "<?= func(123) $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from equals on short opening to closing question mark`() {
+    doTest(
+      "g%",
+      "<?$c= func(123) ?>",
+      "<?= func(123) $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from function to closing paren`() {
+    doTest(
+      "g%",
+      "<?= ${c}func(123) ?>",
+      "<?= func(123$c) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from whitespace before question mark to opening angle bracket`() {
+    doTest(
+      "g%",
+      "<?= func(123)$c ?>",
+      "$c<?= func(123) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from closing angle bracket to opening bracket on short tag`() {
+    doTest(
+      "g%",
+      "<?= func(123) ?$c>",
+      "$c<?= func(123) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from angle bracket on extra short opening to closing question mark`() {
+    doTest(
+      "g%",
+      "$c<? func(123) ?>",
+      "<? func(123) $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from question mark on extra short opening to closing question mark`() {
+    doTest(
+      "g%",
+      "<$c? func(123) ?>",
+      "<? func(123) $c?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from function to closing paren in extra short tags`() {
+    doTest(
+      "g%",
+      "<? ${c}func(123) ?>",
+      "<? func(123$c) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from whitespace before question mark to opening extra short tag`() {
+    doTest(
+      "g%",
+      "<? func(123)$c ?>",
+      "$c<? func(123) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from closing angle bracket to opening bracket on extra short tag`() {
+    doTest(
+      "g%",
+      "<? func(123) ?$c>",
+      "$c<? func(123) ?>",
+      VimStateMachine.Mode.COMMAND,
+      VimStateMachine.SubMode.NONE,
+      fileName = "file.php",
+    )
+  }
+
 
 }

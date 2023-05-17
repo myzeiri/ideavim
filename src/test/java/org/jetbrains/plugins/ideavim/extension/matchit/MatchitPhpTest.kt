@@ -250,6 +250,190 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+
+  @Test
+  fun `test jump from if to endif`() {
+    doTest(
+      "%",
+      """
+        ${c}if (true):
+          echo "true";
+        endif;
+      """.trimIndent(),
+      """
+        if (true):
+          echo "true";
+        ${c}endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endif to if`() {
+    doTest(
+      "%",
+      """
+        if (true):
+          echo "true";
+        ${c}endif;
+      """.trimIndent(),
+      """
+        ${c}if (true):
+          echo "true";
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  // NOTE: Dollar signs are excluded from code examples to avoid escaping issues.
+
+  @Test
+  fun `test jump from if to else`() {
+    doTest(
+      "%",
+      """
+        ${c}if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        ${c}else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from else to endif`() {
+    doTest(
+      "%",
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        ${c}else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        ${c}endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endif to if in if-else structure`() {
+    doTest(
+      "%",
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        ${c}endif;
+      """.trimIndent(),
+      """
+        ${c}if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from if to elseif`() {
+    doTest(
+      "%",
+      """
+        ${c}if (first):
+          echo "first"
+        elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      """
+        if (first):
+          echo "first"
+        ${c}elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from elseif to else`() {
+    doTest(
+      "%",
+      """
+        if (first):
+          echo "first"
+        ${c}elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      """
+        if (first):
+          echo "first"
+        elseif (second):
+          echo "second"
+        ${c}else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endif to if in else-if structure`() {
+    doTest(
+      "%",
+      """
+        if (first):
+          echo "first"
+        elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        ${c}endif;
+      """.trimIndent(),
+      """
+        ${c}if (first):
+          echo "first"
+        elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+
   /*
    *  g% motion tests.
    */
@@ -458,5 +642,188 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+  @Test
+  fun `test reverse jump from if to endif`() {
+    doTest(
+      "g%",
+      """
+        ${c}if (true):
+          echo "true";
+        endif;
+      """.trimIndent(),
+      """
+        if (true):
+          echo "true";
+        ${c}endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endif to if`() {
+    doTest(
+      "g%",
+      """
+        if (true):
+          echo "true";
+        ${c}endif;
+      """.trimIndent(),
+      """
+        ${c}if (true):
+          echo "true";
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from if to endif in if-else structure`() {
+    doTest(
+      "g%",
+      """
+        ${c}if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        ${c}endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from else to if`() {
+    doTest(
+      "g%",
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        ${c}else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      """
+        ${c}if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endif to else in if-else structure`() {
+    doTest(
+      "g%",
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        else:
+          echo "x is not greater than 0";
+        ${c}endif;
+      """.trimIndent(),
+      """
+        if (x > 0):
+          echo "x is greater than 0";
+        ${c}else:
+          echo "x is not greater than 0";
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from elseif to if`() {
+    doTest(
+      "g%",
+      """
+        if (first):
+          echo "first"
+        ${c}elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      """
+        ${c}if (first):
+          echo "first"
+        elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from else to elseif`() {
+    doTest(
+      "g%",
+      """
+        if (first):
+          echo "first"
+        elseif (second):
+          echo "second"
+        ${c}else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      """
+        if (first):
+          echo "first"
+        ${c}elseif (second):
+          echo "second"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from elseif to elseif`() {
+    doTest(
+      "g%",
+      """
+        if (first):
+          echo "first"
+        elseif (second):
+          echo "second"
+        ${c}elseif (third):
+          echo "third"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      """
+        if (first):
+          echo "first"
+        ${c}elseif (second):
+          echo "second"
+        elseif (third):
+          echo "third"
+        else:
+          echo "false"
+        endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
 
 }

@@ -300,8 +300,10 @@ private object FileTypePatterns {
       LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
       LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
+      + LanguagePatterns("\\bswitch\\b", "\\b(?:case|break|continue)\\b", "\\bendswitch\\b")
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
+
   }
 
   private fun createCPatterns(): LanguagePatterns {

@@ -250,7 +250,6 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
-
   @Test
   fun `test jump from if to endif`() {
     doTest(
@@ -428,6 +427,174 @@ class MatchitPhpTest : VimTestCase() {
         else:
           echo "false"
         endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from switch to case`() {
+    doTest(
+      "%",
+      """
+        ${c}switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          ${c}case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from case to continue`() {
+    doTest(
+      "%",
+      """
+        switch (x):
+          ${c}case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            ${c}continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from continue to case`() {
+    doTest(
+      "%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            ${c}continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          ${c}case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from case to break`() {
+    doTest(
+      "%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          ${c}case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            ${c}break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from break to endswitch`() {
+    doTest(
+      "%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            ${c}break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        ${c}endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endswitch to switch`() {
+    doTest(
+      "%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        ${c}endswitch;
+      """.trimIndent(),
+      """
+        ${c}switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
       """.trimIndent(),
       fileName = "file.php",
     )
@@ -821,6 +988,174 @@ class MatchitPhpTest : VimTestCase() {
         else:
           echo "false"
         endif;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from switch to endswitch`() {
+    doTest(
+      "g%",
+      """
+        ${c}switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        ${c}endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endswitch to break`() {
+    doTest(
+      "g%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        ${c}endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            ${c}break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from break to case`() {
+    doTest(
+      "g%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            ${c}break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          ${c}case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from case to continue`() {
+    doTest(
+      "g%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            continue;
+          ${c}case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            ${c}continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from continue to case`() {
+    doTest(
+      "g%",
+      """
+        switch (x):
+          case "one":
+            echo "one";
+            ${c}continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        switch (x):
+          ${c}case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from case to switch`() {
+    doTest(
+      "g%",
+      """
+        switch (x):
+          ${c}case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
+      """.trimIndent(),
+      """
+        ${c}switch (x):
+          case "one":
+            echo "one";
+            continue;
+          case "two":
+            echo "two";
+            break;
+        endswitch;
       """.trimIndent(),
       fileName = "file.php",
     )

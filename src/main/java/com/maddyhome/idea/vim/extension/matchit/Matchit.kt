@@ -298,20 +298,25 @@ private object FileTypePatterns {
     /*
       do-while isn't worth the complexity since our standard constructors won't build the patterns right.
       The behavior of break and continue in the real plugin is odd imo.
-      while-break-endwhile is a natural jump order, but the plugin goes while-break <nothing>
+      while-break-endwhile is a natural jump order, but the plugin goes while-break <nothing>.
+      The original patterns didn't include break, continue, or switch.
+
       We would have to manually construct:
-        do -> (do, break|continue|while)
-        while -> (while, break|continue|endwhile)
-        switch -> (switch, case|break|continue|endswitch)
-        break|continue -> (break|continue, break|continue)
+        linkedMapOf("do" to Pair("do", "break|continue|while"))
+        linkedMapOf("while" to Pair("while", "break|continue|endwhile"))
+        linkedMapOf("switch" to Pair("switch", "case|break|continue|endswitch"))
+        linkedMapOf("break|continue" to Pair("break|continue", "break|continue"))
 
       with reverse:
-        do -> (do, while)
-        while -> (while, endwhile)
-        switch -> (switch, endswitch)
-        break|continue -> (break|continue, break|continue)
+        linkedMapOf("do" to Pair("do", "while"))
+        linkedMapOf("while" to Pair("while", "endwhile"))
+        linkedMapOf("switch" to Pair("switch", "endswitch"))
+        linkedMapOf("break|continue" to Pair("break|continue", "break|continue"))
 
-      if we omit support for do-while we can use the natural jump order provided by our helper constructors
+      and we'd still need to distinguish the while with "while (.*)\s*: like the original patterns do.
+
+      If we omit support for do-while we can use the natural jump order provided by our helper constructors, and
+      that makes everything simpler.
 
      '\<do\>:\<break\>:\<continue\>:\<while\>,'
      '\<for\>:\<break\>:\<continue\>:\<endfor\>,'
@@ -328,6 +333,10 @@ private object FileTypePatterns {
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
 
+      // TODO: try
+      //  val loopOpenings = "\\b(?:for|while|switch)\\b"
+      //  val loopClosings = "\\bend(?:for|while|switch)\\b"
+      //  LanguagePatterns(loopOpenings, "\\b(?:break|continue|case)\\b", loopClosings)
   }
 
   private fun createCPatterns(): LanguagePatterns {

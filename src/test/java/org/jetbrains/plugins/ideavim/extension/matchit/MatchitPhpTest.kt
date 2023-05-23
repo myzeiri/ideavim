@@ -600,6 +600,198 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+  @Test
+  fun `test jump from while to endwhile`() {
+    doTest(
+      "%",
+      """
+        ${c}while (i <= 10):
+          echo i
+        endwhile;
+      """.trimIndent(),
+      """
+        while (i <= 10):
+          echo i
+        ${c}endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endwhile to while`() {
+    doTest(
+      "%",
+      """
+        while (i <= 10):
+          echo i
+        ${c}endwhile;
+      """.trimIndent(),
+      """
+        ${c}while (i <= 10):
+          echo i
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from while to continue`() {
+    doTest(
+      "%",
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from continue to endwhile`() {
+    doTest(
+      "%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endwhile to while over continue`() {
+    doTest(
+      "%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from while to break`() {
+    doTest(
+      "%",
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}break;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from break to endwhile`() {
+    doTest(
+      "%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}break;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endwhile to while over break`() {
+    doTest(
+      "%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
 
   /*
    *  g% motion tests.
@@ -1156,6 +1348,198 @@ class MatchitPhpTest : VimTestCase() {
             echo "two";
             break;
         endswitch;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from while to endwhile`() {
+    doTest(
+      "g%",
+      """
+        ${c}while (i <= 10):
+          echo i
+        endwhile;
+      """.trimIndent(),
+      """
+        while (i <= 10):
+          echo i
+        ${c}endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endwhile to while`() {
+    doTest(
+      "g%",
+      """
+        while (i <= 10):
+          echo i
+        ${c}endwhile;
+      """.trimIndent(),
+      """
+        ${c}while (i <= 10):
+          echo i
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from while to endwhile over continue`() {
+    doTest(
+      "g%",
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from continue to while`() {
+    doTest(
+      "g%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endwhile to continue`() {
+    doTest(
+      "g%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            continue;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}continue;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from while to endwhile over break`() {
+    doTest(
+      "g%",
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from break to while`() {
+    doTest(
+      "g%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}break;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      """
+        ${c}while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endwhile to break`() {
+    doTest(
+      "g%",
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            break;
+          endif;
+          n++;
+        ${c}endwhile;
+      """.trimIndent(),
+      """
+        while (n <= 10):
+          echo n
+          if (n % 2 == 0):
+            ${c}break;
+          endif;
+          n++;
+        endwhile;
       """.trimIndent(),
       fileName = "file.php",
     )

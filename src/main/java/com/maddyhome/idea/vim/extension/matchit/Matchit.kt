@@ -295,12 +295,36 @@ private object FileTypePatterns {
   private fun createPhpPatterns(): LanguagePatterns {
     // Original patterns: https://github.com/vim/vim/blob/master/runtime/ftplugin/php.vim
 
+    /*
+      do-while isn't worth the complexity since our standard constructors won't build the patterns right.
+      The behavior of break and continue in the real plugin is odd imo.
+      while-break-endwhile is a natural jump order, but the plugin goes while-break <nothing>
+      We would have to manually construct:
+        do -> (do, break|continue|while)
+        while -> (while, break|continue|endwhile)
+        switch -> (switch, case|break|continue|endswitch)
+        break|continue -> (break|continue, break|continue)
+
+      with reverse:
+        do -> (do, while)
+        while -> (while, endwhile)
+        switch -> (switch, endswitch)
+        break|continue -> (break|continue, break|continue)
+
+      if we omit support for do-while we can use the natural jump order provided by our helper constructors
+
+     '\<do\>:\<break\>:\<continue\>:\<while\>,'
+     '\<for\>:\<break\>:\<continue\>:\<endfor\>,'
+     '\<foreach\>:\<break\>:\<continue\>:\<endforeach\>,'
+     '\%(<<<\s*\)\@<=''\=\(\h\w*\)''\=:^\s*\1\>'
+     */
+
     // use assertions since html angle brackets conflict...
     return (
       LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
       LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
-      + LanguagePatterns("\\bswitch\\b", "\\b(?:case|break|continue)\\b", "\\bendswitch\\b")
+      + LanguagePatterns("\\b(?:while|switch)\\b", "\\b(?:case|break|continue)\\b", "\\bend(?:while|switch)\\b")
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
 

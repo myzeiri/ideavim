@@ -296,47 +296,20 @@ private object FileTypePatterns {
     // Original patterns: https://github.com/vim/vim/blob/master/runtime/ftplugin/php.vim
 
     /*
-      do-while isn't worth the complexity since our standard constructors won't build the patterns right.
-      The behavior of break and continue in the real plugin is odd imo.
-      while-break-endwhile is a natural jump order, but the plugin goes while-break <nothing>.
-      The original patterns didn't include break, continue, or switch.
-
-      We would have to manually construct:
-        linkedMapOf("do" to Pair("do", "break|continue|while"))
-        linkedMapOf("while" to Pair("while", "break|continue|endwhile"))
-        linkedMapOf("switch" to Pair("switch", "case|break|continue|endswitch"))
-        linkedMapOf("break|continue" to Pair("break|continue", "break|continue"))
-
-      with reverse:
-        linkedMapOf("do" to Pair("do", "while"))
-        linkedMapOf("while" to Pair("while", "endwhile"))
-        linkedMapOf("switch" to Pair("switch", "endswitch"))
-        linkedMapOf("break|continue" to Pair("break|continue", "break|continue"))
-
-      and we'd still need to distinguish the while with "while (.*)\s*: like the original patterns do.
-
-      If we omit support for do-while we can use the natural jump order provided by our helper constructors, and
-      that makes everything simpler.
 
      '\<do\>:\<break\>:\<continue\>:\<while\>,'
-     '\<for\>:\<break\>:\<continue\>:\<endfor\>,'
-     '\<foreach\>:\<break\>:\<continue\>:\<endforeach\>,'
      '\%(<<<\s*\)\@<=''\=\(\h\w*\)''\=:^\s*\1\>'
      */
 
-    // use assertions since html angle brackets conflict...
+    val loopKeywords = "(?:for|foreach|while|switch)"
     return (
+      // use assertions since html angle brackets conflict...
       LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
       LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
-      + LanguagePatterns("\\b(?:for|foreach|while|switch)\\b", "\\b(?:case|break|continue)\\b", "\\bend(?:for|foreach|while|switch)\\b")
+      + LanguagePatterns("\\b${loopKeywords}\\b", "\\b(?:case|break|continue)\\b", "\\bend${loopKeywords}\\b")
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
-
-      // TODO: try
-      //  val loopOpenings = "\\b(?:for|while|switch)\\b"
-      //  val loopClosings = "\\bend(?:for|while|switch)\\b"
-      //  LanguagePatterns(loopOpenings, "\\b(?:break|continue|case)\\b", loopClosings)
   }
 
   private fun createCPatterns(): LanguagePatterns {

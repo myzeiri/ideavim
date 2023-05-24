@@ -948,6 +948,163 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+  @Test
+  fun `test jump from foreach to endforeach`() {
+    doTest(
+      "%",
+      """
+        ${c}foreach (nums as n):
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endforeach to foreach`() {
+    doTest(
+      "%",
+      """
+        foreach (nums as n):
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      """
+        ${c}foreach (nums as n):
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from foreach to continue`() {
+    doTest(
+      "%",
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from continue to endforeach`() {
+    doTest(
+      "%",
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endforeach to foreach over continue`() {
+    doTest(
+      "%",
+      """
+        foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from foreach to break`() {
+    doTest(
+      "%",
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}break
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from break to endforeach`() {
+    doTest(
+      "%",
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}break
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endforeach to foreach over break`() {
+    doTest(
+      "%",
+      """
+        foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+
   /*
    *  g% motion tests.
    */
@@ -1851,6 +2008,162 @@ class MatchitPhpTest : VimTestCase() {
           if (i == 1) ${c}break;
           echo i;
         endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from foreach to endforeach`() {
+    doTest(
+      "g%",
+      """
+        ${c}foreach (nums as n):
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endforeach to foreach`() {
+    doTest(
+      "g%",
+      """
+        foreach (nums as n):
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      """
+        ${c}foreach (nums as n):
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from foreach to endforeach over continue`() {
+    doTest(
+      "g%",
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from continue to foreach`() {
+    doTest(
+      "g%",
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endforeach to continue`() {
+    doTest(
+      "g%",
+      """
+        foreach (nums as n):
+          if (n == 1): continue
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}continue
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from foreach to endforeach over break`() {
+    doTest(
+      "g%",
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from break to foreach`() {
+    doTest(
+      "g%",
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}break
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      """
+        ${c}foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endforeach to break`() {
+    doTest(
+      "g%",
+      """
+        foreach (nums as n):
+          if (n == 1): break
+          echo n;
+        ${c}endforeach;
+      """.trimIndent(),
+      """
+        foreach (nums as n):
+          if (n == 1): ${c}break
+          echo n;
+        endforeach;
       """.trimIndent(),
       fileName = "file.php",
     )

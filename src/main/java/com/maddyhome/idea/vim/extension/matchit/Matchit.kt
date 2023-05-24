@@ -329,7 +329,7 @@ private object FileTypePatterns {
       LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
       LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
-      + LanguagePatterns("\\b(?:for|while|switch)\\b", "\\b(?:case|break|continue)\\b", "\\bend(?:for|while|switch)\\b")
+      + LanguagePatterns("\\b(?:for|foreach|while|switch)\\b", "\\b(?:case|break|continue)\\b", "\\bend(?:for|foreach|while|switch)\\b")
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
 

@@ -792,6 +792,161 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+  @Test
+  fun `test jump from for to endfor`() {
+    doTest(
+      "%",
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endfor to for`() {
+    doTest(
+      "%",
+      """
+        for (i = 1; i <= 5; i++):
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from for to continue`() {
+    doTest(
+      "%",
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from continue to endfor`() {
+    doTest(
+      "%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endfor to for over continue`() {
+    doTest(
+      "%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from for to break`() {
+    doTest(
+      "%",
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}break;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from break to endfor`() {
+    doTest(
+      "%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}break;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endfor to for over break`() {
+    doTest(
+      "%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
 
   /*
    *  g% motion tests.
@@ -1540,6 +1695,162 @@ class MatchitPhpTest : VimTestCase() {
           endif;
           n++;
         endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from for to endfor`() {
+    doTest(
+      "g%",
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endfor to for`() {
+    doTest(
+      "g%",
+      """
+        for (i = 1; i <= 5; i++):
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from for to endfor over continue`() {
+    doTest(
+      "g%",
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from continue to for`() {
+    doTest(
+      "g%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from endfor to continue`() {
+    doTest(
+      "g%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) continue;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}continue;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from for endfor over break`() {
+    doTest(
+      "g%",
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from break to for`() {
+    doTest(
+      "g%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}break;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      """
+        ${c}for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        endfor;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from endfor to break`() {
+    doTest(
+      "g%",
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) break;
+          echo i;
+        ${c}endfor;
+      """.trimIndent(),
+      """
+        for (i = 1; i <= 5; i++):
+          if (i == 1) ${c}break;
+          echo i;
+        endfor;
       """.trimIndent(),
       fileName = "file.php",
     )

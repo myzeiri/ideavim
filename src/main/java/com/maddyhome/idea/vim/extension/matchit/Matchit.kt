@@ -329,8 +329,7 @@ private object FileTypePatterns {
       LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
       LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
-        // UPDATE: we can distinguish do-while by checking for a semi-colon at the end vs a colon on regular loops
-      + LanguagePatterns("(?:do|(?:while \\(.*\\):))", "\\b(?:case|break|continue)\\b", "(?:endwhile|(?:while \\(.*\\);))")
+      + LanguagePatterns("\\b(?:while|switch)\\b", "\\b(?:case|break|continue)\\b", "\\bend(?:while|switch)\\b")
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
 

@@ -1105,6 +1105,47 @@ class MatchitPhpTest : VimTestCase() {
   }
 
 
+
+  @Test
+  fun `test jump from opening heredoc to closing`() {
+    doTest(
+      "%",
+      """
+        m = <<<${c}EOT
+        message
+        EOT;
+      """.trimIndent(),
+      """
+        m = <<<EOT
+        message
+        ${c}EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from closing heredoc to opening`() {
+    doTest(
+      "%",
+      """
+        m = <<<EOT
+        message
+        EO${c}T;
+      """.trimIndent(),
+      """
+        m = <<<${c}EOT
+        message
+        EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+
+
+
+
   /*
    *  g% motion tests.
    */
@@ -2164,6 +2205,42 @@ class MatchitPhpTest : VimTestCase() {
           if (n == 1): ${c}break
           echo n;
         endforeach;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from opening heredoc to closing`() {
+    doTest(
+      "g%",
+      """
+        m = <<<${c}EOT
+        message
+        EOT;
+      """.trimIndent(),
+      """
+        m = <<<EOT
+        message
+        ${c}EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from closing heredoc to opening`() {
+    doTest(
+      "g%",
+      """
+        m = <<<EOT
+        message
+        EO${c}T;
+      """.trimIndent(),
+      """
+        m = <<<${c}EOT
+        message
+        EOT;
       """.trimIndent(),
       fileName = "file.php",
     )

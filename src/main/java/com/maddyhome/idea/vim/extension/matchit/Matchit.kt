@@ -296,18 +296,24 @@ private object FileTypePatterns {
     // Original patterns: https://github.com/vim/vim/blob/master/runtime/ftplugin/php.vim
 
     /*
-
      '\<do\>:\<break\>:\<continue\>:\<while\>,'
-     '\%(<<<\s*\)\@<=''\=\(\h\w*\)''\=:^\s*\1\>'
      */
+
+    // The name of the heredoc is left as %s so we can substitute the back reference.
+    val openingDoc = "(?<=<<<)\\s*(\\w+)"
+    val closingDoc = "^\\s*(\\w+);"
+    val docSearchPair = Pair("(?<=<<<)\\s*%s", "%s;")
+    val docPattern = LanguagePatterns(linkedMapOf(openingDoc to docSearchPair), linkedMapOf(closingDoc to docSearchPair))
+    // TODO: double check these
 
     val loopKeywords = "(?:for|foreach|while|switch)"
     return (
       // use assertions since html angle brackets conflict...
-      LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
-      LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
+      LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>")
+      + LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
       + LanguagePatterns("\\b${loopKeywords}\\b", "\\b(?:case|break|continue)\\b", "\\bend${loopKeywords}\\b")
+      + docPattern
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
   }

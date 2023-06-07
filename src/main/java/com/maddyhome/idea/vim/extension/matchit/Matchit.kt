@@ -298,13 +298,9 @@ private object FileTypePatterns {
     val loopClosings = "(?:\\bend(?:for|foreach|while|switch)\\b)|(?:\\bwhile \\(.*\\)\\s*;)"
     // TODO: add tests for multiple loops on a single line
 
-    /*
-     '\<do\>:\<break\>:\<continue\>:\<while\>,'
-     */
-
     val openingDoc = "(?<=<<<)\\s*'?(\\w+)'?"
     val closingDoc = "^\\s*(\\w+);" // TODO: try replacing the semi-colon with [,;\n]
-    val docSearchPair = Pair("(?<=<<<)\\s*'?%s'?", "%s") // %s is the captured doc string name
+    val docSearchPair = Pair("(?<=<<<)\\s*'?%s'?", "%s") // %s for the captured doc string name
     val docPatterns = LanguagePatterns(linkedMapOf(openingDoc to docSearchPair), linkedMapOf(closingDoc to docSearchPair))
 
     return (

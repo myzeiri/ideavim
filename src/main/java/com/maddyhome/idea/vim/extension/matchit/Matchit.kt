@@ -299,12 +299,10 @@ private object FileTypePatterns {
      '\<do\>:\<break\>:\<continue\>:\<while\>,'
      */
 
-    // The name of the heredoc is left as %s so we can substitute the back reference.
-    val openingDoc = "(?<=<<<)\\s*(\\w+)"
-    val closingDoc = "^\\s*(\\w+);"
-    val docSearchPair = Pair("(?<=<<<)\\s*%s", "%s;")
-    val docPattern = LanguagePatterns(linkedMapOf(openingDoc to docSearchPair), linkedMapOf(closingDoc to docSearchPair))
-    // TODO: double check these
+    val openingDoc = "(?<=<<<)\\s*'?(\\w+)'?"
+    val closingDoc = "^\\s*(\\w+);" // TODO: try replacing the semi-colon with [,;\n]
+    val docSearchPair = Pair("(?<=<<<)\\s*'?%s'?", "%s") // %s is the captured doc string name
+    val docPatterns = LanguagePatterns(linkedMapOf(openingDoc to docSearchPair), linkedMapOf(closingDoc to docSearchPair))
 
     val loopKeywords = "(?:for|foreach|while|switch)"
     return (
@@ -313,7 +311,7 @@ private object FileTypePatterns {
       + LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
       + LanguagePatterns("\\b${loopKeywords}\\b", "\\b(?:case|break|continue)\\b", "\\bend${loopKeywords}\\b")
-      + docPattern
+      + docPatterns
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )
   }

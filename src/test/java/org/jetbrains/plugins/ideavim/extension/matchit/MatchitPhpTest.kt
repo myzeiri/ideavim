@@ -1142,7 +1142,41 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+  @Test
+  fun `test jump from opening nowdoc to closing`() {
+    doTest(
+      "%",
+      """
+        m = <<<${c}'EOT'
+        nowdoc
+        EOT;
+      """.trimIndent(),
+      """
+        m = <<<'EOT'
+        nowdoc
+        ${c}EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
 
+  @Test
+  fun `test jump from closing nowdoc to opening`() {
+    doTest(
+      "%",
+      """
+        m = <<<'EOT'
+        nowdoc
+        ${c}EOT;
+      """.trimIndent(),
+      """
+        m = <<<${c}'EOT'
+        nowdoc
+        EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
 
 
 
@@ -2240,6 +2274,42 @@ class MatchitPhpTest : VimTestCase() {
       """
         m = <<<${c}EOT
         message
+        EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from opening nowdoc to closing`() {
+    doTest(
+      "g%",
+      """
+        m = <<<${c}'EOT'
+        nowdoc
+        EOT;
+      """.trimIndent(),
+      """
+        m = <<<'EOT'
+        nowdoc
+        ${c}EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from closing nowdoc to opening`() {
+    doTest(
+      "g%",
+      """
+        m = <<<'EOT'
+        nowdoc
+        ${c}EOT;
+      """.trimIndent(),
+      """
+        m = <<<${c}'EOT'
+        nowdoc
         EOT;
       """.trimIndent(),
       fileName = "file.php",

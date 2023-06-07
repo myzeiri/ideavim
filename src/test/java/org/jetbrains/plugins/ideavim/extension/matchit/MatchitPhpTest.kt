@@ -1104,8 +1104,6 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
-
-
   @Test
   fun `test jump from opening heredoc to closing`() {
     doTest(
@@ -1179,6 +1177,151 @@ class MatchitPhpTest : VimTestCase() {
   }
 
 
+
+
+  @Test
+  fun `test jump from do to while`() {
+    doTest(
+      "%",
+      """
+        ${c}do {
+          n++;
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          n++;
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from while to do`() {
+    doTest(
+      "%",
+      """
+        do {
+          n++;
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      """
+        ${c}do {
+          n++;
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from do to continue in do-while`() {
+    doTest(
+      "%",
+      """
+        ${c}do {
+          if (n == 2) { continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { ${c}continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from continue to while in do-while`() {
+    doTest(
+      "%",
+      """
+        do {
+          if (n == 2) { ${c}continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { continue; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from while to do over continue`() {
+    doTest(
+      "%",
+      """
+        do {
+          if (n == 2) { continue; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      """
+        ${c}do {
+          if (n == 2) { continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from do to break in do-while`() {
+    doTest(
+      "%",
+      """
+        ${c}do {
+          if (n == 2) { break; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { ${c}break; }
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from break to while in do-while`() {
+    doTest(
+      "%",
+      """
+        do {
+          if (n == 2) { ${c}break; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { break; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from while to do over break`() {
+    doTest(
+      "%",
+      """
+        do {
+          if (n == 2) { break; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      """
+        ${c}do {
+          if (n == 2) { break; }
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
 
   /*
    *  g% motion tests.
@@ -2311,6 +2454,150 @@ class MatchitPhpTest : VimTestCase() {
         m = <<<${c}'EOT'
         nowdoc
         EOT;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from do to while`() {
+    doTest(
+      "g%",
+      """
+        ${c}do {
+          n++;
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          n++;
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from while to do`() {
+    doTest(
+      "g%",
+      """
+        do {
+          n++;
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      """
+        ${c}do {
+          n++;
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from do to while over continue`() {
+    doTest(
+      "g%",
+      """
+        ${c}do {
+          if (n == 2) { continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { continue; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from continue to do`() {
+    doTest(
+      "g%",
+      """
+        do {
+          if (n == 2) { ${c}continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        ${c}do {
+          if (n == 2) { continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from while to continue in do-while`() {
+    doTest(
+      "g%",
+      """
+        do {
+          if (n == 2) { continue; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { ${c}continue; }
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from do to while over break`() {
+    doTest(
+      "g%",
+      """
+        ${c}do {
+          if (n == 2) { break; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { break; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from break to do`() {
+    doTest(
+      "g%",
+      """
+        do {
+          if (n == 2) { ${c}break; }
+        } while (n <= 10);
+      """.trimIndent(),
+      """
+        ${c}do {
+          if (n == 2) { break; }
+        } while (n <= 10);
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from while to break in do-while`() {
+    doTest(
+      "g%",
+      """
+        do {
+          if (n == 2) { break; }
+        } ${c}while (n <= 10);
+      """.trimIndent(),
+      """
+        do {
+          if (n == 2) { ${c}break; }
+        } while (n <= 10);
       """.trimIndent(),
       fileName = "file.php",
     )

@@ -294,6 +294,9 @@ private object FileTypePatterns {
 
   private fun createPhpPatterns(): LanguagePatterns {
     // Original patterns: https://github.com/vim/vim/blob/master/runtime/ftplugin/php.vim
+    val loopOpenings = "(?:\\b(?:for|do|foreach|switch)\\b)|(?:\\bwhile \\(.*\\)\\s*:)"
+    val loopClosings = "(?:\\bend(?:for|foreach|while|switch)\\b)|(?:\\bwhile \\(.*\\)\\s*;)"
+    // TODO: add tests for multiple loops on a single line
 
     /*
      '\<do\>:\<break\>:\<continue\>:\<while\>,'
@@ -304,13 +307,12 @@ private object FileTypePatterns {
     val docSearchPair = Pair("(?<=<<<)\\s*'?%s'?", "%s") // %s is the captured doc string name
     val docPatterns = LanguagePatterns(linkedMapOf(openingDoc to docSearchPair), linkedMapOf(closingDoc to docSearchPair))
 
-    val loopKeywords = "(?:for|foreach|while|switch)"
     return (
       // use assertions since html angle brackets conflict...
       LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>")
       + LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
       + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
-      + LanguagePatterns("\\b${loopKeywords}\\b", "\\b(?:case|break|continue)\\b", "\\bend${loopKeywords}\\b")
+      + LanguagePatterns(loopOpenings, "\\b(?:case|break|continue)\\b", loopClosings)
       + docPatterns
       + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
       )

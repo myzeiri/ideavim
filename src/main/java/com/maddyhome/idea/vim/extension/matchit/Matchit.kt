@@ -294,12 +294,11 @@ private object FileTypePatterns {
 
   private fun createPhpPatterns(): LanguagePatterns {
     // Original patterns: https://github.com/vim/vim/blob/master/runtime/ftplugin/php.vim
-    val loopOpenings = "(?:\\b(?:for|do|foreach|switch)\\b)|(?:\\bwhile \\(.*\\)\\s*:)"
+    val loopOpenings = "(?:\\b(?:for|do|foreach|switch)\\b)|(?:\\bwhile \\(.*?\\)\\s*:)"
     val loopClosings = "(?:\\bend(?:for|foreach|while|switch)\\b)|(?:\\bwhile \\(.*\\)\\s*;)"
-    // TODO: add tests for multiple loops on a single line
 
     val openingDoc = "(?<=<<<)\\s*'?(\\w+)'?"
-    val closingDoc = "^\\s*(\\w+);" // TODO: try replacing the semi-colon with [,;\n]
+    val closingDoc = "^\\s*(\\w+)\\s*[,;\n]" // TODO: double check this on Windows like endings
     val docSearchPair = Pair("(?<=<<<)\\s*'?%s'?", "%s") // %s for the captured doc string name
     val docPatterns = LanguagePatterns(linkedMapOf(openingDoc to docSearchPair), linkedMapOf(closingDoc to docSearchPair))
 

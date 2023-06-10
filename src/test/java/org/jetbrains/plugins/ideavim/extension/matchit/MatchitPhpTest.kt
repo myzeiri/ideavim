@@ -792,6 +792,36 @@ class MatchitPhpTest : VimTestCase() {
     )
   }
 
+
+  @Test
+  fun `test jump from inner while to endwhile`() {
+    doTest(
+      "%",
+      """
+        while (): ${c}while (): endwhile; endwhile;
+      """.trimIndent(),
+      """
+        while (): while (): ${c}endwhile; endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test jump from inner endwhile to while`() {
+    doTest(
+      "%",
+      """
+        while (): while (): ${c}endwhile; endwhile;
+      """.trimIndent(),
+      """
+        while (): ${c}while (): endwhile; endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+
   @Test
   fun `test jump from for to endfor`() {
     doTest(
@@ -1177,7 +1207,41 @@ class MatchitPhpTest : VimTestCase() {
   }
 
 
+  @Test
+  fun `test jump from opening nowdoc to closing in array`() {
+    doTest(
+      "%",
+      """
+        values = [<<<${c}'EOD'
+          a
+          EOD, 'c d e'];
+      """.trimIndent(),
+      """
+        values = [<<<'EOD'
+          a
+          ${c}EOD, 'c d e'];
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
 
+  @Test
+  fun `test jump from closing nowdoc to opening in array`() {
+    doTest(
+      "%",
+      """
+        values = [<<<'EOD'
+          a
+          ${c}EOD, 'c d e'];
+      """.trimIndent(),
+      """
+        values = [<<<${c}'EOD'
+          a
+          EOD, 'c d e'];
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
 
   @Test
   fun `test jump from do to while`() {
@@ -2070,6 +2134,34 @@ class MatchitPhpTest : VimTestCase() {
           endif;
           n++;
         endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from inner while to endwhile`() {
+    doTest(
+      "g%",
+      """
+        while (): ${c}while (): endwhile; endwhile;
+      """.trimIndent(),
+      """
+        while (): while (): ${c}endwhile; endwhile;
+      """.trimIndent(),
+      fileName = "file.php",
+    )
+  }
+
+  @Test
+  fun `test reverse jump from inner endwhile to while`() {
+    doTest(
+      "g%",
+      """
+        while (): while (): ${c}endwhile; endwhile;
+      """.trimIndent(),
+      """
+        while (): ${c}while (): endwhile; endwhile;
       """.trimIndent(),
       fileName = "file.php",
     )

@@ -303,13 +303,12 @@ private object FileTypePatterns {
     val docPatterns = LanguagePatterns(linkedMapOf(openingDoc to docSearchPair), linkedMapOf(closingDoc to docSearchPair))
 
     return (
-      // use assertions since html angle brackets conflict...
-      LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>")
-      + LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") // this will override the above in closings...
-      + LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b")
-      + LanguagePatterns(loopOpenings, "\\b(?:case|break|continue)\\b", loopClosings)
-      + docPatterns
-      + createHtmlPatterns("[^/\\s><?]+") // default but exclude question marks
+      LanguagePatterns("(?<=<)\\?(?:php|=)?", "\\?>") +
+        LanguagePatterns("<(?=\\?(?:php|=)?)", "\\?>") +
+        LanguagePatterns("\\bif\\b", "\\b(?:else|elseif)\\b", "\\bendif\\b") +
+        LanguagePatterns(loopOpenings, "\\b(?:case|break|continue)\\b", loopClosings) +
+        docPatterns +
+        createHtmlPatterns("[^/\\s><?]+") // Default but exclude question marks from tag names.
       )
   }
 
